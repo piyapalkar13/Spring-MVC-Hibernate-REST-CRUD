@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+<!-- DispatcherServlet Context: defines this servlet's request-processing 
+		infrastructure -->
+
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving 
+		up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources 
+		in the /WEB-INF/views directory -->
+	<beans:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+<context:component-scan base-package="com.crud.rest.controllers"/>
+
+
+
+
+        <!-- 1st bean -->
+		<beans:bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<beans:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<beans:property name="url" value="jdbc:mysql:localhost:3306/restDb"/>
+		<beans:property name="username" value="root"/>
+		<beans:property name="password" value="root"/>
+		</beans:bean>
+		
+		<!-- 2nd bean -->
+		<beans:bean id="sessionFactory" 
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<!-- 1st property -->
+		<beans:property name="dataSource" ref="dataSource"/>
+		
+		<!-- 2nd property -->
+		<beans:property name="hibernate.properties">
+		<beans:props>
+		<beans:prop key="hibernate.show_sql">true</beans:prop>
+		<beans:prop key="hibernate.hbm2ddl.auto">update</beans:prop>
+		<beans:prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</beans:prop>
+		</beans:props>
+		</beans:property>
+		
+		<!-- 3rd property -->
+		<beans:property name="annotatedClasses">
+		<beans:list>
+		<beans:value>com.crud.rest.beans.MyCustomer</beans:value>
+		</beans:list>
+		</beans:property>
+		</beans:bean>
+		
+		<!-- 3rd bean -->
+		
+		<beans:bean id="transcationManager" class="org.springframework.orm.hibernate4.HibernateTranscationManager">
+		<beans:property name="sessionFactory" ref="sessionFactory"/>
+		</beans:bean>
+		
+		<!-- 4th bean of customerDaoImp -->
+		
+		<beans:bean id="customerDao" class="CustomerDAOImp">
+		<beans:property name="sessionFactory" ref="sessionFactory"/>
+		</beans:bean>
+		
+		<!-- 5th bean of CustomerServiceImp -->
+		
+		<beans:bean id="customerService" class="com.crud.rest.service.CustomerServiceImp">
+		<beans:property name="custdao" ref="customerDao"/>
+		
+		</beans:bean>
+		
+		</beans:beans>
